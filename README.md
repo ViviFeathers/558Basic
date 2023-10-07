@@ -4,16 +4,38 @@ Vivi Feathers
 2023-10-03
 
 - [Overwiew](#overwiew)
+- [Requirement and Packages.](#requirement-and-packages)
 - [API Interaction Functions](#api-interaction-functions)
+- [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
+  - [Create a two-way contingency table and see how many items each
+    brand
+    has](#create-a-two-way-contingency-table-and-see-how-many-items-each-brand-has)
+  - [Create a stacked bar graph to present item count for each product
+    type](#create-a-stacked-bar-graph-to-present-item-count-for-each-product-type)
+  - [Find measures of center and spread for price by cosmetic
+    types.](#find-measures-of-center-and-spread-for-price-by-cosmetic-types)
+  - [Violin plot for rating distribution across cosmetic
+    brands](#violin-plot-for-rating-distribution-across-cosmetic-brands)
+  - [Create scatterplots relating usa_price
+    rating](#create-scatterplots-relating-usa_price-rating)
+  - [Create a stacked bar graph to present item count for each product
+    type](#create-a-stacked-bar-graph-to-present-item-count-for-each-product-type-1)
+  - [Find measures of center and spread for rating by product
+    types.](#find-measures-of-center-and-spread-for-rating-by-product-types)
+    - [create a boxplot for price across product type
+      groups.](#create-a-boxplot-for-price-across-product-type-groups)
 
 # Overwiew
 
 This vignette is created for exploring makeup items, their brand, name,
-price, rating… \# Requirement and Packages.
+price, rating…
+
+# Requirement and Packages.
 
 ``` r
 library(tidyverse)
 library(jsonlite)
+library(dplyr)
 ```
 
 # API Interaction Functions
@@ -149,46 +171,312 @@ else {
   target_final <- target3 %>%
                   select(brand, name, product_type, usd_price, price_stat, rating, rating_stat, description, image_link)
   return(target_final)
-  }
+}
+
  }
-
-# test call
-
-test1 <- pick_makeup(makeup_brand = "dior", makeup_type = NULL)
-test1
 ```
 
-    ## # A tibble: 71 × 7
-    ##    brand name                                                           product_type usd_price rating description image_link
-    ##    <chr> <chr>                                                          <chr>            <dbl> <lgl>  <chr>       <chr>     
-    ##  1 dior  "\n                            Junon\n                       … nail_polish       24.4 NA     Discover t… https://w…
-    ##  2 dior  "\n                            Matte\n                       … nail_polish       24.4 NA     Discover t… https://w…
-    ##  3 dior  "\n                            Poison Metal\n                … nail_polish       24.4 NA     Discover t… https://w…
-    ##  4 dior  "\n                            Jungle Matte\n                … nail_polish       24.4 NA     Discover t… https://w…
-    ##  5 dior  "\n                            Miss Satin\n                  … nail_polish       24.4 NA     Discover t… https://w…
-    ##  6 dior  "\n                            Mineral\n                     … nail_polish       24.4 NA     Discover t… https://w…
-    ##  7 dior  "\n                            Sauvage\n                     … nail_polish       24.4 NA     Discover t… https://w…
-    ##  8 dior  "\n                            Diabolo\n                     … nail_polish       24.4 NA     Discover t… https://w…
-    ##  9 dior  "\n                            Tease\n                       … nail_polish       24.4 NA     Discover t… https://w…
-    ## 10 dior  "\n                            Precious Rocks\n              … nail_polish       25.0 NA     Diorific r… https://w…
-    ## # ℹ 61 more rows
+# Exploratory Data Analysis (EDA)
 
 ``` r
-test2 <- pick_makeup(makeup_brand = "nyx", makeup_type = "lipstick")
-test2
+# call the function and return all the data
+all <- pick_makeup(makeup_brand = NULL, makeup_type = NULL)
+all
 ```
 
-    ## # A tibble: 38 × 9
-    ##    brand name                             product_type usd_price price_stat        rating rating_stat description image_link
-    ##    <chr> <chr>                            <chr>            <dbl> <chr>              <dbl> <chr>       <chr>       <chr>     
-    ##  1 nyx   Luv Out Loud Liquid Lipstick     lipstick           7   This lipstick's …     NA No rating   What quali… https://w…
-    ##  2 nyx   V'Amped Up! Lip Top Coat         lipstick           6   This lipstick's …     NA No rating   Cast a spe… https://w…
-    ##  3 nyx   Simply Pink Lip Cream            lipstick           6.5 This lipstick's …     NA No rating   Get ready … https://w…
-    ##  4 nyx   Simply Red Lip Cream             lipstick           6.5 This lipstick's …     NA No rating   A classic … https://w…
-    ##  5 nyx   Simply Nude Lip Cream            lipstick           6.5 This lipstick's …     NA No rating   Bare is be… https://w…
-    ##  6 nyx   Macaron Lippies                  lipstick           6.5 This lipstick's …     NA No rating   Fantasize … https://w…
-    ##  7 nyx   In Your Element Lipstick - Metal lipstick           9   This lipstick's …     NA No rating   A match ma… https://w…
-    ##  8 nyx   Wicked Lippies                   lipstick           6.5 This lipstick's …     NA No rating   Take a wal… https://w…
-    ##  9 nyx   Simply Vamp Lip Cream            lipstick           6.5 This lipstick's …     NA No rating   Vamp up yo… https://w…
-    ## 10 nyx   In Your Element Lipstick - Water lipstick           9   This lipstick's …     NA No rating   A match ma… https://w…
-    ## # ℹ 28 more rows
+    ## # A tibble: 877 × 7
+    ##    brand     name                 product_type usd_price rating description                                 image_link
+    ##    <chr>     <chr>                <chr>            <dbl>  <dbl> <chr>                                       <chr>     
+    ##  1 colourpop Lippie Pencil        lip_liner         3.65     NA "Lippie Pencil A long-wearing and high-int… https://c…
+    ##  2 colourpop Blotted Lip          lipstick          4.02     NA "Blotted Lip Sheer matte lipstick that cre… https://c…
+    ##  3 colourpop Lippie Stix          lipstick          4.02     NA "Lippie Stix Formula contains Vitamin E, M… https://c…
+    ##  4 colourpop No Filter Foundation foundation        8.76     NA "Developed for the Selfie Age, our buildab… https://c…
+    ##  5 boosh     Lipstick             lipstick         19.0      NA "All of our products are free from lead an… https://c…
+    ##  6 deciem    Serum Foundation     foundation        4.89     NA "Serum Foundations are lightweight medium-… https://3…
+    ##  7 deciem    Coverage Foundation  foundation        5.04     NA "Coverage Foundations are full-coverage fo… https://3…
+    ##  8 alva      Liquid Eye Shadow    eyeshadow         9.95     NA "Our Liquid Edition Eye Shadows have been … http://ww…
+    ##  9 glossier  Stretch Concealer    foundation       22        NA "A traditional concealer sets to a stiff, … https://s…
+    ## 10 glossier  Cloud Paint          blush            22        NA "With Cloud Paint, we set out to make blus… https://s…
+    ## # ℹ 867 more rows
+
+``` r
+# write a function to convert "brand" and "product_type" to factors
+add_factor <- function(df_1) {
+                    df_1 %>%
+                       mutate(Cosmetic_Brand = as.factor(df_1$brand), Cosmetic_Type = as.factor(df_1$product_type))
+}
+
+all_factor <- add_factor(all)
+all_factor
+```
+
+    ## # A tibble: 877 × 9
+    ##    brand     name                 product_type usd_price rating description    image_link Cosmetic_Brand Cosmetic_Type
+    ##    <chr>     <chr>                <chr>            <dbl>  <dbl> <chr>          <chr>      <fct>          <fct>        
+    ##  1 colourpop Lippie Pencil        lip_liner         3.65     NA "Lippie Penci… https://c… colourpop      lip_liner    
+    ##  2 colourpop Blotted Lip          lipstick          4.02     NA "Blotted Lip … https://c… colourpop      lipstick     
+    ##  3 colourpop Lippie Stix          lipstick          4.02     NA "Lippie Stix … https://c… colourpop      lipstick     
+    ##  4 colourpop No Filter Foundation foundation        8.76     NA "Developed fo… https://c… colourpop      foundation   
+    ##  5 boosh     Lipstick             lipstick         19.0      NA "All of our p… https://c… boosh          lipstick     
+    ##  6 deciem    Serum Foundation     foundation        4.89     NA "Serum Founda… https://3… deciem         foundation   
+    ##  7 deciem    Coverage Foundation  foundation        5.04     NA "Coverage Fou… https://3… deciem         foundation   
+    ##  8 alva      Liquid Eye Shadow    eyeshadow         9.95     NA "Our Liquid E… http://ww… alva           eyeshadow    
+    ##  9 glossier  Stretch Concealer    foundation       22        NA "A traditiona… https://s… glossier       foundation   
+    ## 10 glossier  Cloud Paint          blush            22        NA "With Cloud P… https://s… glossier       blush        
+    ## # ℹ 867 more rows
+
+## Create a two-way contingency table and see how many items each brand has
+
+``` r
+two_way <- table( all_factor$Cosmetic_Type,all_factor$Cosmetic_Brand)
+two_way
+```
+
+    ##              
+    ##               almay alva anna sui annabelle benefit boosh burt's bees butter london cargo cosmetics china glaze
+    ##   blush           1    0        1         1       0     0           0             0               3           0
+    ##   bronzer         1    0        0         1       6     0           0             0               9           0
+    ##   eyebrow         0    0        0         0      11     0           0             0               0           0
+    ##   eyeliner        3    0        3         7       3     0           0             0               2           0
+    ##   eyeshadow       2    1        0         0       0     0           0             0               1           0
+    ##   foundation      3    0        0         1       2     0           0             0               2           0
+    ##   lip_liner       0    0        0         1       0     0           0             0               1           0
+    ##   lipstick        1    0        1         0      13     1           2             1               2           0
+    ##   mascara         3    0        0         0       6     0           0             0               0           0
+    ##   nail_polish     0    0        1         0       0     0           0             1               0           1
+    ##              
+    ##               clinique colourpop covergirl dalish deciem dior dr. hauschka e.l.f. essie fenty glossier l'oreal
+    ##   blush              7         0         7      0      0    4            0      2     0     0        1       2
+    ##   bronzer            5         0         2      0      0    1            3      5     0     0        0       1
+    ##   eyebrow            6         0         0      0      0    5            0      0     0     0        0       0
+    ##   eyeliner           9         0        12      0      0    6            2      4     0     1        0       9
+    ##   eyeshadow         12         0         5      0      0   10            2      6     0     0        0       1
+    ##   foundation        34         1        10      0      2    9            2      3     0     2        4       7
+    ##   lip_liner          2         1         1      0      0    0            0      1     0     0        0       2
+    ##   lipstick          17         2         4      1      0   15            2      3     0     2        1       7
+    ##   mascara            0         0        12      0      0    8            1      3     0     0        0       8
+    ##   nail_polish        0         0         1      0      0   13            0      0     4     0        0       9
+    ##              
+    ##               marcelle maybelline milani mineral fusion misa mistura moov nyx orly pacifica physicians formula
+    ##   blush              1          4      2              1    0       0    0  12    0        1                  8
+    ##   bronzer            2          3      1              1    0       0    0   9    0        1                  9
+    ##   eyebrow            0          0      0              0    0       0    0  18    0        0                  0
+    ##   eyeliner           4          8      5              1    0       0    0  32    0        1                  9
+    ##   eyeshadow          1          7      1              0    0       1    0   1    0        4                  3
+    ##   foundation         2         10      1              2    0       0    0  32    0        0                  8
+    ##   lip_liner          3          1      1              0    0       0    0  10    0        1                  0
+    ##   lipstick           1          7      2              1    0       0    0  38    0        1                  0
+    ##   mascara            1         11      0              1    0       0    0  11    0        2                  6
+    ##   nail_polish        0          3      0              1    1       0    3   0    4        2                  0
+    ##              
+    ##               piggy paint pure anada revlon salon perfect sante sinful colours smashbox stila suncoat wet n wild
+    ##   blush                 0          3      2             0     1              0        3     2       0          0
+    ##   bronzer               0          1      0             0     0              0        2     1       0          0
+    ##   eyebrow               0          0      0             0     0              0        7     0       0          0
+    ##   eyeliner              0          1      4             0     1              0        6     1       1          5
+    ##   eyeshadow             0          2      1             0     1              0        7     0       0          3
+    ##   foundation            0          4      7             0     1              0        9     0       0          0
+    ##   lip_liner             0          0      1             0     1              0        0     0       0          0
+    ##   lipstick              0          1     11             0     0              0        6     0       0          2
+    ##   mascara               0          1      0             0     0              0        6     0       1          1
+    ##   nail_polish           1          3      3             1     1              1        0     0       4          1
+    ##              
+    ##               zorah
+    ##   blush           0
+    ##   bronzer         0
+    ##   eyebrow         0
+    ##   eyeliner        1
+    ##   eyeshadow       0
+    ##   foundation      0
+    ##   lip_liner       0
+    ##   lipstick        0
+    ##   mascara         1
+    ##   nail_polish     0
+
+## Create a stacked bar graph to present item count for each product type
+
+use `gglot` and `geom_bar` to create a stacked bar graph
+
+``` r
+library(ggplot2)
+g <- ggplot(data = all_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
+  g + geom_bar(alpha = 0.6) +
+  labs(x = "Cosmetic Type", y = "Item count", title = "Bar Plot of Item Count for Each Cosmetic Type") 
+```
+
+![](README_files/figure-gfm/graphics-1.png)<!-- -->
+
+## Find measures of center and spread for price by cosmetic types.
+
+I will write a get use price mean, standard deviation, variance, median
+and IQR by costmetic type groups.
+
+``` r
+ all_factor %>%
+                   group_by(Cosmetic_Type) %>%
+                   summarise(Mean = mean(usd_price),  Standard_Deviation = sd(usd_price), 
+                             Variance = var(usd_price), Median = median(usd_price), 
+                             q1 = quantile(usd_price, probs = 0.25),
+                             q3 = quantile(usd_price, probs = 0.75))
+```
+
+    ## # A tibble: 10 × 7
+    ##    Cosmetic_Type  Mean Standard_Deviation Variance Median    q1    q3
+    ##    <fct>         <dbl>              <dbl>    <dbl>  <dbl> <dbl> <dbl>
+    ##  1 blush          18.5              10.8     117.   15.2   9.99  24.1
+    ##  2 bronzer        23.5              13.9     194.   21.0  11.2   32  
+    ##  3 eyebrow        22.0              14.0     195.   21     9.88  30  
+    ##  4 eyeliner       13.2               6.88     47.4  11     8     17.0
+    ##  5 eyeshadow      22.2              16.3     267.   17.7   9.98  28  
+    ##  6 foundation     21.4              11.4     129.   20.0  12     28  
+    ##  7 lip_liner      10.2               5.16     26.6   9.99  4.99  13.0
+    ##  8 lipstick       15.9              11.0     121.   12     8     21  
+    ##  9 mascara        15.4               8.54     72.9  13.0   9     22  
+    ## 10 nail_polish    14.1               7.25     52.6  11.0   8.14  22.2
+
+## Violin plot for rating distribution across cosmetic brands
+
+``` r
+#filter to 6 brands that have most non-missing rating
+five_brand <- all_factor %>%
+              filter(Cosmetic_Brand %in% c("l'oreal", "physicians formula", "covergirl", "maybelline", "revlon"))
+
+p <- ggplot(data = five_brand, aes(x = Cosmetic_Brand, y = rating, fill = Cosmetic_Brand))
+p + geom_violin(alpha = 0.6) +
+scale_fill_manual(values=c("#EF6F6A", "#cc9900", "#69b3a2", "#404080", "#9172EC")) +
+labs(x = "Cosmetic Brand", y = "Rating Distribution", title = "Violin Plot of rating distribution across cosmetic brands") 
+```
+
+![](README_files/figure-gfm/graphics2-1.png)<!-- -->
+
+## Create scatterplots relating usa_price rating
+
+``` r
+  split <- function(br) {
+        a <- five_brand %>%
+              filter(Cosmetic_Brand == br)
+  s <- ggplot(data = a, aes(y = rating, x = usd_price))
+  s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
+  labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for brand ",br))}
+
+split(quote(covergirl))
+```
+
+![](README_files/figure-gfm/graphics3-1.png)<!-- -->
+
+``` r
+split(quote("l'oreal"))
+```
+
+![](README_files/figure-gfm/graphics3-2.png)<!-- -->
+
+``` r
+split(quote("physicians formula"))
+```
+
+![](README_files/figure-gfm/graphics3-3.png)<!-- -->
+
+``` r
+split(quote(maybelline))
+```
+
+![](README_files/figure-gfm/graphics3-4.png)<!-- -->
+
+``` r
+split(quote(revlon))
+```
+
+![](README_files/figure-gfm/graphics3-5.png)<!-- --> \## Call the API
+function again and get a subset data frame with only maybelline cosmetic
+products
+
+``` r
+# call the function and return a subset data frame with only maybelline cosmetic products
+mbl <- pick_makeup(makeup_brand = "maybelline", makeup_type = NULL)
+mbl
+```
+
+    ## # A tibble: 54 × 7
+    ##    brand      name                                                product_type usd_price rating description image_link
+    ##    <chr>      <chr>                                               <chr>            <dbl>  <dbl> <chr>       <chr>     
+    ##  1 maybelline "Maybelline Face Studio Master Hi-Light Light Boos… bronzer          15.0     5   "Maybellin… https://d…
+    ##  2 maybelline "Maybelline Fit Me Bronzer"                         bronzer          10.3     4.5 "Why You'l… https://d…
+    ##  3 maybelline "Maybelline Facestudio Master Contour Kit"          bronzer          16.0    NA   "Maybellin… https://d…
+    ##  4 maybelline "Maybelline Face Studio Master Hi-Light Light Boos… blush            15.0    NA   "Maybellin… https://d…
+    ##  5 maybelline "Maybelline Face Studio Master Hi-Light Light Boos… blush            15.0     5   "Maybellin… https://d…
+    ##  6 maybelline "Maybelline Fit Me Blush"                           blush            10.3     4.8 "Maybellin… https://d…
+    ##  7 maybelline "Maybelline Dream Bouncy Blush"                     blush            12.0     4.5 "Now, blus… https://d…
+    ##  8 maybelline "Maybelline Color Sensational Lipliner"             lip_liner         8.29    3.5 "Keep your… https://d…
+    ##  9 maybelline "Maybelline Dream Smooth Mousse Foundation"         foundation       14.8     3.8 "Why You'l… https://d…
+    ## 10 maybelline "Maybelline Fit Me Shine-Free Foundation Stick"     foundation       11.0     4.7 "Get flawl… https://d…
+    ## # ℹ 44 more rows
+
+``` r
+mbl_factor <- add_factor(mbl)
+mbl_factor
+```
+
+    ## # A tibble: 54 × 9
+    ##    brand      name                   product_type usd_price rating description image_link Cosmetic_Brand Cosmetic_Type
+    ##    <chr>      <chr>                  <chr>            <dbl>  <dbl> <chr>       <chr>      <fct>          <fct>        
+    ##  1 maybelline "Maybelline Face Stud… bronzer          15.0     5   "Maybellin… https://d… maybelline     bronzer      
+    ##  2 maybelline "Maybelline Fit Me Br… bronzer          10.3     4.5 "Why You'l… https://d… maybelline     bronzer      
+    ##  3 maybelline "Maybelline Facestudi… bronzer          16.0    NA   "Maybellin… https://d… maybelline     bronzer      
+    ##  4 maybelline "Maybelline Face Stud… blush            15.0    NA   "Maybellin… https://d… maybelline     blush        
+    ##  5 maybelline "Maybelline Face Stud… blush            15.0     5   "Maybellin… https://d… maybelline     blush        
+    ##  6 maybelline "Maybelline Fit Me Bl… blush            10.3     4.8 "Maybellin… https://d… maybelline     blush        
+    ##  7 maybelline "Maybelline Dream Bou… blush            12.0     4.5 "Now, blus… https://d… maybelline     blush        
+    ##  8 maybelline "Maybelline Color Sen… lip_liner         8.29    3.5 "Keep your… https://d… maybelline     lip_liner    
+    ##  9 maybelline "Maybelline Dream Smo… foundation       14.8     3.8 "Why You'l… https://d… maybelline     foundation   
+    ## 10 maybelline "Maybelline Fit Me Sh… foundation       11.0     4.7 "Get flawl… https://d… maybelline     foundation   
+    ## # ℹ 44 more rows
+
+## Create a stacked bar graph to present item count for each product type
+
+use `gglot` and `geom_bar` to create a stacked bar graph
+
+``` r
+q <- ggplot(data = mbl_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
+  q + geom_bar(alpha = 0.7) +
+  labs(x = "Cosmetic Type", y = "Item count", title = "Bar Plot of Item Count for Each Cosmetic Type of maybelline") 
+```
+
+![](README_files/figure-gfm/graphics4-1.png)<!-- -->
+
+## Find measures of center and spread for rating by product types.
+
+I will write a get rating mean, standard deviation, variance, median and
+IQR by costmetic type groups.
+
+``` r
+ mbl_factor %>%
+            filter(is.na(rating) == FALSE) %>%
+                   group_by(Cosmetic_Type) %>%
+                   summarise(Mean = mean(rating),  Standard_Deviation = sd(rating), 
+                             Variance = var(rating), Median = median(rating), 
+                             q1 = quantile(rating, probs = 0.25),
+                             q3 = quantile(rating, probs = 0.75))
+```
+
+    ## # A tibble: 9 × 7
+    ##   Cosmetic_Type  Mean Standard_Deviation Variance Median    q1    q3
+    ##   <fct>         <dbl>              <dbl>    <dbl>  <dbl> <dbl> <dbl>
+    ## 1 blush          4.77              0.252   0.0633   4.8   4.65  4.9 
+    ## 2 bronzer        4.75              0.354   0.125    4.75  4.62  4.88
+    ## 3 eyeliner       4.23              0.207   0.0427   4.25  4.05  4.38
+    ## 4 eyeshadow      3.76              0.929   0.863    4     3.5   4.4 
+    ## 5 foundation     3.88              0.722   0.522    3.9   3.8   4.4 
+    ## 6 lip_liner      3.5              NA      NA        3.5   3.5   3.5 
+    ## 7 lipstick       4.4               0.849   0.72     4.8   4.2   5   
+    ## 8 mascara        4.16              0.241   0.0582   4.1   4     4.35
+    ## 9 nail_polish    3.43              0.513   0.263    3.3   3.15  3.65
+
+### create a boxplot for price across product type groups.
+
+``` r
+  b <- ggplot(data = mbl_factor, aes(y = usd_price, x = Cosmetic_Type, fill=Cosmetic_Type))
+  b + geom_boxplot(adjust = 0.5, color="#e9ecef", alpha=0.5) +
+  labs(y = "Price", x="Product Type", title = "Box Plot of Price Center and Spread Across Product Type Groups") 
+```
+
+![](README_files/figure-gfm/graphics5-1.png)<!-- -->
