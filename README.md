@@ -469,41 +469,25 @@ In order to make my github pages site look correctly, I have to manually
 call the anonymous function five times as below:
 
 ``` r
-a <- list("covergirl", "l'oreal", "physicians formula", "maybelline", "revlon")
-go_plot <- function(x) {
+#a <- list("covergirl", "l'oreal", "physicians formula", "maybelline", "revlon")
+#go_plot <- function(x) {
               b <-   all_factor %>%
-                       filter(Cosmetic_Brand == x)
+                       filter(Cosmetic_Brand == "covergirl")
               s <- ggplot(data = b, aes(y = rating, x = usd_price))
               s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
-              labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ",x))}
-go_plot(quote(covergirl))
+              labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ","covergirl"))
 ```
 
 ![](README_files/figure-gfm/graphics3-1.png)<!-- -->
 
 ``` r
-go_plot(quote("l'oreal"))
+#}
+#go_plot(quote(covergirl))
+#go_plot(quote("l'oreal"))
+#go_plot(quote("physicians formula"))
+#go_plot(quote(maybelline))
+#go_plot(quote(revlon))
 ```
-
-![](README_files/figure-gfm/graphics3-2.png)<!-- -->
-
-``` r
-go_plot(quote("physicians formula"))
-```
-
-![](README_files/figure-gfm/graphics3-3.png)<!-- -->
-
-``` r
-go_plot(quote(maybelline))
-```
-
-![](README_files/figure-gfm/graphics3-4.png)<!-- -->
-
-``` r
-go_plot(quote(revlon))
-```
-
-![](README_files/figure-gfm/graphics3-5.png)<!-- -->
 
 I did not observe clear relationship between price and rating from
 “covergirl”, “physicians formula”, “maybelline” or “revlon” data. There
