@@ -289,12 +289,12 @@ After run this `lapply` function, 5 scatter plots will be returned in a list.
 
 ```{r graphics3, fig.width = 9, fig.height = 6}
 a <- list("covergirl", "l'oreal", "physicians formula", "maybelline", "revlon")
-lapply(X=a, FUN= function(x) {
+unlist(lapply(X=a, FUN= function(x) {
         b <-   all_factor %>%
                  filter(Cosmetic_Brand == x)
         s <- ggplot(data = b, aes(y = rating, x = usd_price))
           s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
-          labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ",x))})
+          labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ",x))}))
 ```
 
 I did not observe clear relationship between price and rating from "covergirl", "physicians formula", "maybelline" or "revlon" data. There might be a week negative relationship between price and rating in "l'oreal", which means its cheaper items had better ratings.
