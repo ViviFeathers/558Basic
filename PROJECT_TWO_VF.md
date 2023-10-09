@@ -475,31 +475,46 @@ Now I want to investigate whether there is any relationship between
 price and rating. I will still pick those 5 brand names that have most
 non-missing rating values.
 
-At beginning I tried to put them in a list “a”, also wrote an anonymous
-function where data frame would be filtered by the brand name input and
-stored in “b”, then I used the `ggplot` function, assigning “b\$rating”
-as y and “usd_price” as x. Later I added a `geom_point` layer to
-generate the corresponding scatter plot. Finally I used a `lapply`
-function to apply the anonymous function to every element in the list
-“a”.
-
-After ran this `lapply` function, 5 scatter plots did get generated but
-did not show up on my github pages site, instead, an empty list was the
-output.
-
-In order to make my github pages site look correctly, I have to manually
-call the anonymous function five times as below:
+I will put them in a list “a”, also write an anonymous function where
+data frame will be filtered by the brand name input, then I used the
+`ggplot` function, assigning “rating” as y and “usd_price” as x. Later I
+will add a `geom_point` layer to generate the corresponding scatter
+plot. Finally I will use a `lapply` function to apply the anonymous
+function to every element in the list “a”.
 
 ``` r
-              plot1 <-   all_factor %>%
-                       filter(Cosmetic_Brand == "covergirl") %>%
+a <- list("covergirl", "l'oreal", "physicians formula", "maybelline", "revlon")
+lapply(X=a, FUN = function(x) {
+                       all_factor %>%
+                       filter(Cosmetic_Brand == x) %>%
                        ggplot(aes(y = rating, x = usd_price)) +
                        geom_point( alpha = 0.5, size = 2, position = "jitter") +
-              labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ","covergirl"))
-plot1
+              labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ",x))})
 ```
 
+    ## [[1]]
+
 ![](PROJECT_TWO_VF_files/figure-gfm/graphics3-1.png)<!-- -->
+
+    ## 
+    ## [[2]]
+
+![](PROJECT_TWO_VF_files/figure-gfm/graphics3-2.png)<!-- -->
+
+    ## 
+    ## [[3]]
+
+![](PROJECT_TWO_VF_files/figure-gfm/graphics3-3.png)<!-- -->
+
+    ## 
+    ## [[4]]
+
+![](PROJECT_TWO_VF_files/figure-gfm/graphics3-4.png)<!-- -->
+
+    ## 
+    ## [[5]]
+
+![](PROJECT_TWO_VF_files/figure-gfm/graphics3-5.png)<!-- -->
 
 I did not observe clear relationship between price and rating from
 “covergirl”, “physicians formula”, “maybelline” or “revlon” data. There
