@@ -32,6 +32,7 @@ The following packages were used to create this document:
 ```{r lib, echo = FALSE}
 library(tidyverse)
 library(jsonlite)
+library(imager)
 ```
 
 # API Interaction Functions
@@ -293,8 +294,8 @@ In order to make my github pages site look correctly, I have to manually call th
 
               plot1 <-   all_factor %>%
                        filter(Cosmetic_Brand == "covergirl") %>%
-                       ggplot(aes(y = rating, x = usd_price))
-                       s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
+                       ggplot(aes(y = rating, x = usd_price)) +
+                       geom_point( alpha = 0.5, size = 2, position = "jitter") +
               labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ","covergirl"))
 plot1
 ```
