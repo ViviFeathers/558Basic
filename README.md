@@ -471,18 +471,13 @@ call the anonymous function five times as below:
 ``` r
               plot1 <-   all_factor %>%
                        filter(Cosmetic_Brand == "covergirl") %>%
-                       ggplot(aes(y = rating, x = usd_price))
-                       s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
+                       ggplot(aes(y = rating, x = usd_price)) +
+                       geom_point( alpha = 0.5, size = 2, position = "jitter") +
               labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ","covergirl"))
-```
-
-![](README_files/figure-gfm/graphics3-1.png)<!-- -->
-
-``` r
 plot1
 ```
 
-![](README_files/figure-gfm/graphics3-2.png)<!-- -->
+![](README_files/figure-gfm/graphics3-1.png)<!-- -->
 
 I did not observe clear relationship between price and rating from
 “covergirl”, “physicians formula”, “maybelline” or “revlon” data. There
