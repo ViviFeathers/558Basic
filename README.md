@@ -11,22 +11,15 @@ Vivi Feathers
 - [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
   - [First call](#first-call)
     - [Two-way contingency table](#two-way-contingency-table)
-    - [Create a stacked bar graph to present item count for each product
-      type](#create-a-stacked-bar-graph-to-present-item-count-for-each-product-type)
-    - [Find measures of center and spread for price by cosmetic
-      types.](#find-measures-of-center-and-spread-for-price-by-cosmetic-types)
-    - [Violin plot for rating distribution across cosmetic
-      brands](#violin-plot-for-rating-distribution-across-cosmetic-brands)
-    - [Create scatterplots relating usa_price
-      rating](#create-scatterplots-relating-usa_price-rating)
+    - [Stacked bar graph](#stacked-bar-graph)
+    - [Price summary by cosmetic type.](#price-summary-by-cosmetic-type)
+    - [Violin plot](#violin-plot)
+    - [Scatter plots](#scatter-plots)
   - [Second call](#second-call)
-    - [Create a stacked bar graph to present item count for each product
-      type](#create-a-stacked-bar-graph-to-present-item-count-for-each-product-type-1)
-    - [Find measures of center and spread for rating by product
-      types.](#find-measures-of-center-and-spread-for-rating-by-product-types)
-    - [create a boxplot for price across product type
-      groups.](#create-a-boxplot-for-price-across-product-type-groups)
-- [Wrap up](#wrap-up)
+    - [Second stacked bar graph](#second-stacked-bar-graph)
+    - [Rating summary by product type.](#rating-summary-by-product-type)
+    - [A box plot](#a-box-plot)
+- [Wrap-up](#wrap-up)
 
 This document is a vignette with the purpose of exploring how to read in
 data using a function created for interacting with a specific API, as
@@ -65,10 +58,10 @@ The following packages were used to create this document:
 I created a data cleaning function that removes confusing columns and
 keep brand, name, product_type, price, currency, rating, description,
 image_link columns. It also omits records with missing price or 0.0 as
-price value, removes carriage returns from the name and description
+price value, and removes carriage returns from the name and description
 column. Additionally, it converts price to numeric values, rounds them
 to two decimal places and standardizes them as US dollars according to
-their currency name.(CAD*0.73, GBP*1.22, and if currency is missing, I
+their currency name.(CAD x 0.73, GBP x 1.22, if currency is missing, I
 take it as USD by default).
 
 ``` r
@@ -95,7 +88,7 @@ I grabbed all the available data by calling the base URL in `fromJSON`
 function. After cleaned the raw “all_type” data frame by using the
 “clean_data” function. I summarized the price statistics (mean, median,
 25th and 75th percentile) across product type. Then I removed the
-missing values from rating and calculated the rating statistics (mean,
+records with missing rating, and calculated the rating statistics (mean,
 median, 25th and 75th percentile) by product type as well, At the end, I
 stored the results into two data frames: `price_sum` and `rating_sum`.
 
@@ -133,17 +126,17 @@ rating_sum <- all_type_clean %>%
 I created an API interaction function that fetches data based on user
 selected cosmetic brand or/and product type.
 
-Step one, I set up the base URL which returns all the available data and
-the brand and type pool to limit user’s selections in “benefit”, “dior”,
-“covergirl”, “maybelline”, “smashbox”, “nyx”, “clinique” as cosmetic
-brands and “lipstick”, “foundation”, “eyeliner”, “eyeshadow”, “mascara”,
-“blush” as product types.
+Step one, I set up the base URL which returns all the available data,
+the brand pool and the type pool to limit user’s selections in
+“benefit”, “dior”, “covergirl”, “maybelline”, “smashbox”, “nyx”,
+“clinique” as cosmetic brands and “lipstick”, “foundation”, “eyeliner”,
+“eyeshadow”, “mascara”, “blush” as product types.
 
-Step two, I checked the user’s argument input valus to make sure both
+Step two, I checked the user’s argument input values to make sure both
 makeup_brand and makeup_type are character strings that within the brand
-and type pool, otherwise the function will stop executing.After making
+and type pool, otherwise the function will stop executing. After making
 sure the input values are good, I paste them with the base URL to form
-the API endpoints.
+the API with endpoints.
 
 Step three, I used `fromJSON` function to obtain a data frame from the
 “api_url” and name it as “target”.
@@ -276,9 +269,10 @@ analysis.
 
 ## First call
 
-First of all, let’s call the API function without argument input and
-return all the available data, then convert cosmetic brand and product
-type as factors, so it is better for data analysis.
+First of all, let’s call the API function with default argument inputs
+and return all the available data, then write a function `add_factor`
+which converts cosmetic brand and product type as factors, that way it
+will be better for data analysis.
 
 ``` r
 # call the function and return all the data
@@ -359,31 +353,48 @@ two_way
     ##   mascara         1
     ##   nail_polish     0
 
-### Create a stacked bar graph to present item count for each product type
+The two-way contingency tables shows that there are 44 cosmetic brands
+and 9 product types. “covergirl”, “l’oreal” and “maybelline” are the
+only 3 brands have products in all 9 types. “alva”, “boosh”, “burt’s
+bees”, “china glaze”, “dalish”, “deciem”, “essie”, “misa”, “mistura”,
+“moov”, “orly”, “piggy paint”, “salon perfect” and “sinful colours” only
+have one type products in the database. “nyx” has the most items and
+“alva”, “boosh”, “china glaze”, “dalish”, “misa”, “mistura”, “piggy
+paint”, “salon perfect” and “sinful colours” only have one item.
 
-use `gglot` and `geom_bar` to create a stacked bar graph
+### Stacked bar graph
+
+I want to know the item count by product type. I will use `gglot` and
+`geom_bar` to create a stacked bar graph to present item count for each
+product type with cosmetic_type as x, also fill colors based on
+different product type.
 
 ``` r
-library(ggplot2)
 g <- ggplot(data = all_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
-  g + geom_bar(alpha = 0.6) +
+g + geom_bar(alpha = 0.6) +
   labs(x = "Cosmetic Type", y = "Item count", title = "Bar Plot of Item Count for Each Cosmetic Type") 
 ```
 
 ![](README_files/figure-gfm/graphics-1.png)<!-- -->
 
-### Find measures of center and spread for price by cosmetic types.
+From the bar plot we can see, the blush, bronzer, eyeshadow, mascara and
+nail polish product types each has around 60 to 80 items, the eyeliner
+and the lipstick categories have around 40 item each. The foundation
+category has the most items and the lip liner has the least products.
 
-I will write a get use price mean, standard deviation, variance, median
-and IQR by cosmetic type groups.
+### Price summary by cosmetic type.
+
+In order to know more about price, I will calculate the price mean,
+standard deviation, variance, median, Q1 and Q3 across product types by
+using a `group_by` and a `summarise` function.
 
 ``` r
- all_factor %>%
-                   group_by(Cosmetic_Type) %>%
-                   summarise(Mean = mean(usd_price),  Standard_Deviation = sd(usd_price), 
-                             Variance = var(usd_price), Median = median(usd_price), 
-                             q1 = quantile(usd_price, probs = 0.25),
-                             q3 = quantile(usd_price, probs = 0.75))
+all_factor %>%
+  group_by(Cosmetic_Type) %>%
+  summarise(Mean = mean(usd_price),  Standard_Deviation = sd(usd_price), 
+            Variance = var(usd_price), Median = median(usd_price), 
+            q1 = quantile(usd_price, probs = 0.25),
+            q3 = quantile(usd_price, probs = 0.75))
 ```
 
     ## # A tibble: 9 × 7
@@ -399,10 +410,24 @@ and IQR by cosmetic type groups.
     ## 8 mascara        15.4               8.54     72.9  13.0   9     22  
     ## 9 nail_polish    14.1               7.25     52.6  11.0   8.14  22.2
 
-### Violin plot for rating distribution across cosmetic brands
+From this summary table we can tell that the data distribution of almost
+all product types are skewed. The data distribution of lip liner
+category is the closest to normal distribution compared with other
+product types. Bronze category has the highest mean and median,
+eyeshadow category has the widest variance while lip liner category has
+the lowest mean, median and narrowest variance.
+
+### Violin plot
+
+I am curious about rating distribution. Because lots of cosmetic
+products have rating as missing, let’s choose five brands which have the
+least missing rating values, and use `gglot` and `geom_violin` to create
+violin graph for their rating distributions. I will assign
+cosmetic_brand as x, rating as y also fill the violins with customized
+colors based on different cosmetic brand.
 
 ``` r
-#filter to 6 brands that have most non-missing rating
+#filter to 5 brands that have most non-missing rating
 five_brand <- all_factor %>%
               filter(Cosmetic_Brand %in% c("l'oreal", "physicians formula", "covergirl", "maybelline", "revlon"))
 
@@ -414,95 +439,89 @@ labs(x = "Cosmetic Brand", y = "Rating Distribution", title = "Violin Plot of ra
 
 ![](README_files/figure-gfm/graphics2-1.png)<!-- -->
 
-### Create scatterplots relating usa_price rating
+Almost all distributions are left-skewed, meaning most rating are at the
+high end. Overall, “revlon” has the best rating since all of its rating
+are about 3.3; “maybelline” has the worst rating because most of its
+rating are below 4.5, only a small portion reached 5. It follows a
+multimodal distribution with a big peak at 4.3 and a small peak at 3.
+“physicians formula” also follows a multimodel distribution with 2 peaks
+at 4.8 and 4.
+
+### Scatter plots
+
+Now I want to investigate whether there is any relationship between
+price and rating. I will still pick those 5 brand names that have most
+non-missing rating values, and put them in a list “a”. Then I am using a
+`lapply` function to apply an anonymous function to every element in the
+list “a”.
+
+In my anonymous function, data frame will be filtered by the brand name
+input and stored in “b”, then I am using `ggplot` function, assigning
+“b\$rating” as y and “usd_price” as x. Later I will add a `geom_point`
+layer to generate the corresponding scatter plot.
+
+After run this `lapply` function, 5 scatter plots will be returned in a
+list.
 
 ``` r
-  split <- function(br) {
-        a <- five_brand %>%
-              filter(Cosmetic_Brand == br)
-  s <- ggplot(data = a, aes(y = rating, x = usd_price))
-  s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
-  labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for brand ",br))}
-
-split(quote(covergirl))
+a <- list("covergirl", "l'oreal", "physicians formula", "maybelline", "revlon")
+lapply(X=a, FUN= function(x) {
+        b <-   all_factor %>%
+                 filter(Cosmetic_Brand == x)
+        s <- ggplot(data = b, aes(y = rating, x = usd_price))
+          s + geom_point( alpha = 0.5, size = 2, position = "jitter") +
+          labs(y = "Rating", x="USA Price", title = paste0("Scatter Plot of the Relationship between Price vs Rating for ",x))})
 ```
+
+    ## [[1]]
 
 ![](README_files/figure-gfm/graphics3-1.png)<!-- -->
 
-``` r
-split(quote("l'oreal"))
-```
+    ## 
+    ## [[2]]
 
 ![](README_files/figure-gfm/graphics3-2.png)<!-- -->
 
-``` r
-split(quote("physicians formula"))
-```
+    ## 
+    ## [[3]]
 
 ![](README_files/figure-gfm/graphics3-3.png)<!-- -->
 
-``` r
-split(quote(maybelline))
-```
+    ## 
+    ## [[4]]
 
 ![](README_files/figure-gfm/graphics3-4.png)<!-- -->
 
-``` r
-split(quote(revlon))
-```
+    ## 
+    ## [[5]]
 
 ![](README_files/figure-gfm/graphics3-5.png)<!-- -->
 
+I did not observe clear relationship between price and rating from
+“covergirl”, “physicians formula”, “maybelline” or “revlon” data. There
+might be a week negative relationship between price and rating in
+“l’oreal”, which means its cheaper items had better ratings.
+
 ## Second call
 
-Call the API function again and get a subset data frame with only
-“maybelline” cosmetic products
+Next, I am interested in the brand “maybelline” which has many items in
+this database with not great ratings. I am calling the API function
+again and getting a subset data frame with only “maybelline” cosmetic
+products, then converting its product type to factor by calling the
+`add_factor` function.
 
 ``` r
 # call the function and return a subset data frame with only maybelline cosmetic products
 mbl <- pick_makeup(makeup_brand = "maybelline", makeup_type = NULL)
-mbl
-```
 
-    ## # A tibble: 54 × 9
-    ##    brand      name                         product_type usd_price price_stat rating rating_stat description image_link
-    ##    <chr>      <chr>                        <chr>            <dbl> <chr>       <dbl> <chr>       <chr>       <chr>     
-    ##  1 maybelline "Maybelline Face Studio Mas… blush            15.0  This blus…   NA   No rating   "Maybellin… https://d…
-    ##  2 maybelline "Maybelline Face Studio Mas… blush            15.0  This blus…    5   This blush… "Maybellin… https://d…
-    ##  3 maybelline "Maybelline Fit Me Blush"    blush            10.3  This blus…    4.8 This blush… "Maybellin… https://d…
-    ##  4 maybelline "Maybelline Dream Bouncy Bl… blush            12.0  This blus…    4.5 This blush… "Now, blus… https://d…
-    ##  5 maybelline "Maybelline Face Studio Mas… bronzer          15.0  This bron…    5   This bronz… "Maybellin… https://d…
-    ##  6 maybelline "Maybelline Fit Me Bronzer"  bronzer          10.3  This bron…    4.5 This bronz… "Why You'l… https://d…
-    ##  7 maybelline "Maybelline Facestudio Mast… bronzer          16.0  This bron…   NA   No rating   "Maybellin… https://d…
-    ##  8 maybelline "Maybelline Line Express Ey… eyeliner          7.29 This eyel…    4.5 This eyeli… "Maybellin… https://d…
-    ##  9 maybelline "Maybelline Unstoppable Eye… eyeliner          8.99 This eyel…    4.3 This eyeli… "Unstoppab… https://d…
-    ## 10 maybelline "Maybelline Color Show Kohl… eyeliner          5.99 This eyel…   NA   No rating   "Maybellin… https://d…
-    ## # ℹ 44 more rows
-
-``` r
 mbl_factor <- add_factor(mbl)
-mbl_factor
 ```
 
-    ## # A tibble: 54 × 11
-    ##    brand      name          product_type usd_price price_stat rating rating_stat description image_link Cosmetic_Brand
-    ##    <chr>      <chr>         <chr>            <dbl> <chr>       <dbl> <chr>       <chr>       <chr>      <fct>         
-    ##  1 maybelline "Maybelline … blush            15.0  This blus…   NA   No rating   "Maybellin… https://d… maybelline    
-    ##  2 maybelline "Maybelline … blush            15.0  This blus…    5   This blush… "Maybellin… https://d… maybelline    
-    ##  3 maybelline "Maybelline … blush            10.3  This blus…    4.8 This blush… "Maybellin… https://d… maybelline    
-    ##  4 maybelline "Maybelline … blush            12.0  This blus…    4.5 This blush… "Now, blus… https://d… maybelline    
-    ##  5 maybelline "Maybelline … bronzer          15.0  This bron…    5   This bronz… "Maybellin… https://d… maybelline    
-    ##  6 maybelline "Maybelline … bronzer          10.3  This bron…    4.5 This bronz… "Why You'l… https://d… maybelline    
-    ##  7 maybelline "Maybelline … bronzer          16.0  This bron…   NA   No rating   "Maybellin… https://d… maybelline    
-    ##  8 maybelline "Maybelline … eyeliner          7.29 This eyel…    4.5 This eyeli… "Maybellin… https://d… maybelline    
-    ##  9 maybelline "Maybelline … eyeliner          8.99 This eyel…    4.3 This eyeli… "Unstoppab… https://d… maybelline    
-    ## 10 maybelline "Maybelline … eyeliner          5.99 This eyel…   NA   No rating   "Maybellin… https://d… maybelline    
-    ## # ℹ 44 more rows
-    ## # ℹ 1 more variable: Cosmetic_Type <fct>
+### Second stacked bar graph
 
-### Create a stacked bar graph to present item count for each product type
-
-use `gglot` and `geom_bar` to create a stacked bar graph
+I will use `gglot` and `geom_bar`, assign cosmetic_type as x, also fill
+colors based on different product type, to create a stacked bar graph
+which presents item count for each product type.
 
 ``` r
 q <- ggplot(data = mbl_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
@@ -512,10 +531,15 @@ q <- ggplot(data = mbl_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
 
 ![](README_files/figure-gfm/graphics4-1.png)<!-- -->
 
-### Find measures of center and spread for rating by product types.
+“maybelline” has items in all 9 product types, since this brand started
+up with mascara and foundation, the biggest product type is mascara and
+the smallest category is lip liner.
 
-I will write a get rating mean, standard deviation, variance, median and
-IQR by costmetic type groups.
+### Rating summary by product type.
+
+After removing records with missing rating, I am going to calculate the
+rating mean, standard deviation, variance, median, Q1 and Q3 across
+product types by using a `group_by` and a `summarise` function.
 
 ``` r
  mbl_factor %>%
@@ -540,14 +564,53 @@ IQR by costmetic type groups.
     ## 8 mascara        4.16              0.241   0.0582   4.1   4     4.35
     ## 9 nail_polish    3.43              0.513   0.263    3.3   3.15  3.65
 
-### create a boxplot for price across product type groups.
+Surprisingly, the product type has the highest rating is blush instead
+of mascara. nail polish items have the lowest rating overall,
+eyeshadow’s rating has the widest range while eyeliner’s rating is more
+consistent.
+
+### A box plot
+
+Lastly, let’s create a box plot and learn the price distribution across
+product type. I will use a `ggplot` function and assign price as y,
+product type as x, also color each box according to their product type.
+Then I am going to use a `geom_boxplot` function and add boxes onto the
+plot.
 
 ``` r
   b <- ggplot(data = mbl_factor, aes(y = usd_price, x = Cosmetic_Type, fill=Cosmetic_Type))
-  b + geom_boxplot(adjust = 0.5, color="#e9ecef", alpha=0.5) +
-  labs(y = "Price", x="Product Type", title = "Box Plot of Price Center and Spread Across Product Type Groups") 
+    b + geom_boxplot(adjust = 0.5, color="red", alpha=0.5) +
+    labs(y = "Price", x="Product Type", title = "Box Plot of Price Center and Spread Across Product Type Groups") 
 ```
 
 ![](README_files/figure-gfm/graphics5-1.png)<!-- -->
 
-# Wrap up
+With lip liner and nail polish categories have either one item or one
+price, I won’t consider their distribution. The price distribution of
+blush and eyeliner categories are almost normal; bronzer, foundation and
+mascara are left skewed while eyeshadow and lipstick are right skewed.
+Brozer has the highest price overall and mascara has the lowest.
+Eyeshadow has the biggest price range and listick price is the narrowest
+with one outlier.
+
+# Wrap-up
+
+In this vignette, I built several functions to interact with makeup
+API’s endpoints. After data was returned, it went through some data
+cleaning and manipulation steps to form an analysis-ready data frame.
+The second half of this vignette focused on exploratory data analysis
+(EDA). I used `table`, `summarize` and `ggplot` functions to generate
+contingency table, numerical summaries of makeup price and rating, and
+different plots for data visualization.
+
+I found this vignette is actually handy for my future makeup shopping if
+they continually update the API with newly released items. I can search
+makeup products by brand and type, also compare their price and rating
+with the price and rating summaries from the same type products.
+
+I did learn an interesting fact that some cheap items were rated much
+better than expensive ones, with this concept, I will save some money
+from cutting down high end products.
+
+I hope this vignette will be known by more people especially girls, it
+could be helpful!
