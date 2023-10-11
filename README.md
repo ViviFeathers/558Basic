@@ -57,11 +57,11 @@ The following packages were used to create this document:
 
 I created a data cleaning function that removes confusing columns and
 keep brand, name, product_type, price, currency, rating, description,
-image_link columns. It also omits records with missing price or 0.0 as
+image_link columns. It also omits records with missing price or “0.0” as
 price value, and removes carriage returns from the name and description
 column. Additionally, it converts price to numeric values, rounds them
 to two decimal places and standardizes them as US dollars according to
-their currency name.(CAD x 0.73, GBP x 1.22, if currency is missing, I
+their currency name (CAD x 0.73, GBP x 1.22, if currency is missing, I
 take it as USD by default).
 
 ``` r
@@ -126,17 +126,17 @@ rating_sum <- all_type_clean %>%
 I created an API interaction function that fetches data based on user
 selected cosmetic brand or/and product type.
 
-Step one, I set up the base URL which returns all the available data,
-the brand pool and the type pool to limit user’s selections in
-“benefit”, “dior”, “covergirl”, “maybelline”, “smashbox”, “nyx”,
+Step one, I set up the base URL which returns all the available data; I
+also defined the brand pool and the type pool to limit user’s selections
+in “benefit”, “dior”, “covergirl”, “maybelline”, “smashbox”, “nyx”,
 “clinique” as cosmetic brands and “lipstick”, “foundation”, “eyeliner”,
 “eyeshadow”, “mascara”, “blush” as product types.
 
 Step two, I checked the user’s argument input values to make sure both
-makeup_brand and makeup_type are character strings that within the brand
-and type pool, otherwise the function will stop executing. After making
-sure the input values are good, I paste them with the base URL to form
-the API with endpoints.
+“makeup_brand” and “makeup_type” are character strings that within the
+brand and type pool, otherwise the function will stop executing. After
+making sure the input values are good, I paste them with the base URL to
+form the API with endpoints.
 
 Step three, I used `fromJSON` function to obtain a data frame from the
 “api_url” and name it as “target”.
@@ -379,7 +379,7 @@ g + geom_bar(alpha = 0.6) +
 
 From the bar plot we can see, the blush, bronzer, eyeshadow, mascara and
 nail polish product types each has around 60 to 80 items, the eyeliner
-and the lipstick categories have around 40 item each. The foundation
+and the lipstick categories have around 140 item each. The foundation
 category has the most items and the lip liner has the least products.
 
 ### Price summary by cosmetic type.
@@ -420,11 +420,11 @@ the lowest mean, median and narrowest variance.
 ### Violin plot
 
 I am curious about rating distribution. Because lots of cosmetic
-products have rating as missing, let’s choose five brands which have the
+products have missing ratings, let’s choose five brands which have the
 least missing rating values, and use `gglot` and `geom_violin` to create
-violin graph for their rating distributions. I will assign
-cosmetic_brand as x, rating as y also fill the violins with customized
-colors based on different cosmetic brand.
+violin graph for their rating distributions. I will map cosmetic_brand
+as x, rating as y also fill the violins with customized colors based on
+different cosmetic brand.
 
 ``` r
 #filter to 5 brands that have most non-missing rating
@@ -441,11 +441,11 @@ labs(x = "Cosmetic Brand", y = "Rating Distribution", title = "Violin Plot of ra
 
 Almost all distributions are left-skewed, meaning most rating are at the
 high end. Overall, “revlon” has the best rating since all of its rating
-are about 3.3; “maybelline” has the worst rating because most of its
+are above 3.3; “maybelline” has the worst rating because most of its
 rating are below 4.5, only a small portion reached 5. It follows a
 multimodal distribution with a big peak at 4.3 and a small peak at 3.
-“physicians formula” also follows a multimodel distribution with 2 peaks
-at 4.8 and 4.
+“physicians formula” also follows a multimodel distribution with two
+peaks at 4.8 and 4.
 
 ### Scatter plots
 
@@ -454,8 +454,8 @@ price and rating. I will still pick those 5 brand names that have most
 non-missing rating values.
 
 I will put them in a list “a”, also write an anonymous function where
-data frame will be filtered by the brand name input, then I used the
-`ggplot` function, assigning “rating” as y and “usd_price” as x. Later I
+data frame will be filtered by the brand name input, then I am using the
+`ggplot` function, mapping “rating” as y and “usd_price” as x. Later I
 will add a `geom_point` layer to generate the corresponding scatter
 plot. Finally I will use a `lapply` function to apply the anonymous
 function to every element in the list “a”.
@@ -528,9 +528,9 @@ q <- ggplot(data = mbl_factor, aes(x = Cosmetic_Type, fill = Cosmetic_Type))
 
 ![](README_files/figure-gfm/graphics4-1.png)<!-- -->
 
-“maybelline” has items in all 9 product types, since this brand started
-up with mascara and foundation, the biggest product type is mascara and
-the smallest category is lip liner.
+“maybelline” has items in all 9 product types, since this brand is
+famous for its mascara, the biggest product type is mascara and the
+smallest category is lip liner.
 
 ### Rating summary by product type.
 
@@ -569,10 +569,9 @@ consistent.
 ### A box plot
 
 Lastly, let’s create a box plot and learn the price distribution across
-product type. I will use a `ggplot` function and assign price as y,
-product type as x, also color each box according to their product type.
-Then I am going to use a `geom_boxplot` function and add boxes onto the
-plot.
+product type. I will use a `ggplot` function and map price as y, product
+type as x, also color each box according to their product type. Then I
+am going to use a `geom_boxplot` function and add boxes onto the plot.
 
 ``` r
   b <- ggplot(data = mbl_factor, aes(y = usd_price, x = Cosmetic_Type, fill=Cosmetic_Type))
